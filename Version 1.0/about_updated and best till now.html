@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About APS MUN 2025</title>
+    <!-- Use Tailwind CSS for a clean, responsive base -->
+    <script src="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.js"></script>
+    <style>
+        /* Define a clean, modern font and background gradient */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(to bottom, #800080, #ff69b4);
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        /* Dark mode styling for body */
+        body.dark-mode {
+            background: linear-gradient(to bottom, hsl(0, 0%, 50%), hsl(0, 50%, 70%));
+            color: #ddd;
+        }
+
+        /* Header styling for the initial and scrolled states */
+        .header {
+            position: fixed;
+            top: 30px;
+            width: 100%;
+            height: 375px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            box-sizing: border-box;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            background: linear-gradient(to bottom, rgba(139, 69, 19, 1), rgba(255, 182, 193, 0.001));
+        }
+        body.dark-mode .header {
+            background: linear-gradient(to bottom, rgba(128, 128, 128, 0.95), rgba(192, 192, 192, 0.0095));
+        }
+        .header.scrolled {
+            top: 0;
+            height: 80px;
+            background: rgba(147, 112, 219, 0.95);
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+        body.dark-mode .header.scrolled {
+            background: rgba(128, 128, 128, 1);
+        }
+
+        /* Responsive title styling */
+        .header h1 {
+            font-size: 4vw;
+            margin: 0;
+            transition: font-size 0.3s ease, top 0.3s ease;
+            position: absolute;
+            top: 135px;
+            text-align: center;
+        }
+        .header.scrolled h1 {
+            font-size: 2vw;
+            top: auto;
+            position: static;
+        }
+
+        /* Flag and logo positioning */
+        .header img {
+            position: absolute;
+            transition: all 0.3s ease;
+            filter: drop-shadow(2px 4px 6px black);
+        }
+        .header.initial img#nepal-flag {
+            top: 38px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 50px;
+        }
+        .header.initial img#aps-logo {
+            top: 83px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 50px;
+        }
+        .header.scrolled img#nepal-flag {
+            top: 15px;
+            left: 30px;
+            width: 30px;
+            height: 30px;
+            transform: none;
+        }
+        .header.scrolled img#aps-logo {
+            top: 15px;
+            left: calc(100% - 60px);
+            width: 30px;
+            height: 30px;
+            transform: none;
+        }
+
+        /* Scroll button styling */
+        #scroll-btn {
+            position: absolute;
+            top: 225px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(144, 238, 144, 0.7);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            color: #333;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 1001;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+            animation: flashScrollBtn 1.5s infinite;
+        }
+        @keyframes flashScrollBtn {
+            0%, 100% { background: rgba(144, 238, 144, 0.7); }
+            50% { background: rgba(50, 205, 50, 0.7); }
+        }
+        .header.scrolled #scroll-btn {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Dark mode toggle switch styling */
+        .mode-toggle {
+            position: absolute;
+            top: 195px;
+            left: 50%;
+            transform: translateX(-50%) scale(0.5);
+            z-index: 1002;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: top 0.3s ease, position 0.3s ease, transform 0.3s ease;
+        }
+        .header.scrolled .mode-toggle {
+            top: auto;
+            left: auto;
+            transform: scale(0.5);
+            position: static;
+        }
+        .mode-toggle input[type="checkbox"] {
+            height: 0;
+            width: 0;
+            visibility: hidden;
+        }
+        .mode-toggle label {
+            cursor: pointer;
+            text-indent: -9999px;
+            width: 50px;
+            height: 25px;
+            background: grey;
+            display: block;
+            border-radius: 100px;
+            position: relative;
+        }
+        .mode-toggle label:after {
+            content: '';
+            position: absolute;
+            top: 2.5px;
+            left: 2.5px;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 90px;
+            transition: 0.3s;
+        }
+        .mode-toggle input:checked + label {
+            background: #ff69b4;
+        }
+        .mode-toggle input:checked + label:after {
+            left: calc(100% - 2.5px);
+            transform: translateX(-100%);
+        }
+        .mode-toggle .icon {
+            font-size: 24px;
+            color: #fff;
+        }
+
+        /* Main content section styling */
+        .content {
+            max-width: 1200px;
+            margin: 930px auto 20px;
+            padding: 20px;
+            flex: 1;
+            transition: margin-top 0.3s ease;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .content.scrolled {
+            margin: 260px auto 20px;
+        }
+
+        /* Section frame styling */
+        .section-frame {
+            background: rgba(255, 215, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 1200px;
+            box-sizing: border-box;
+        }
+        body.dark-mode .section-frame {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .section-frame h2 {
+            margin: 0 0 20px 0;
+            font-size: clamp(20px, 2.5vw, 24px);
+            color: #fff;
+            text-align: center;
+        }
+
+        /* Event article and content styling */
+        .event-article {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .event-content {
+            padding: 20px 30px;
+            background-color: #e6e6fa;
+            border-radius: 6px;
+            color: #000;
+            transition: background-color 0.3s ease, color 0.3s ease, filter 0.3s ease;
+            cursor: pointer;
+        }
+        .event-content:hover {
+            filter: brightness(1.2);
+        }
+        body.dark-mode .event-content {
+            background-color: #666;
+            color: #ddd;
+        }
+        .event-content .sub-section {
+            margin-bottom: 20px;
+        }
+        .event-content .sub-section:last-child {
+            margin-bottom: 0;
+        }
+        .event-content .sub-section h3 {
+            font-size: clamp(16px, 2vw, 18px);
+            margin: 0 0 10px 0;
+        }
+        .event-content ul {
+            list-style-type: disc;
+            padding-left: 20px;
+            margin: 0;
+            font-size: clamp(14px, 1.7vw, 16px);
+            text-align: left;
+        }
+
+        /* Innovative timeline styling */
+        .timeline {
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+            overflow: hidden;
+            padding-bottom: 20px;
+        }
+        .timeline-line {
+            position: absolute;
+            height: 6px;
+            background-color: #fff;
+            top: 0;
+            left: 0;
+            right: 0;
+        }
+        body.dark-mode .timeline-line {
+            background-color: #ddd;
+        }
+        .timeline-track {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding-top: 40px;
+        }
+        .timeline-item {
+            flex: 1;
+            padding: 0 15px;
+            box-sizing: border-box;
+            position: relative;
+            text-align: center;
+            min-width: 0;
+        }
+        .timeline-marker {
+            position: absolute;
+            top: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background-color: #fff;
+            border: 4px solid #4682b4;
+            z-index: 1;
+        }
+        .timeline-item:nth-child(2) .timeline-marker {
+            border-color: #32cd32;
+        }
+        .timeline-item:nth-child(3) .timeline-marker {
+            border-color: #dc143c;
+        }
+        body.dark-mode .timeline-marker {
+            background-color: #ddd;
+            border-color: #777;
+        }
+        body.dark-mode .timeline-item:nth-child(2) .timeline-marker {
+            border-color: #888;
+        }
+        body.dark-mode .timeline-item:nth-child(3) .timeline-marker {
+            border-color: #999;
+        }
+        .timeline-content {
+            padding: 20px 30px;
+            border-radius: 6px;
+            color: #000;
+            transition: background-color 0.3s ease, color 0.3s ease, filter 0.3s ease;
+            cursor: pointer;
+        }
+        .timeline-content:hover {
+            filter: brightness(1.2);
+        }
+        .timeline-item:nth-child(1) .timeline-content {
+            background-color: #add8e6;
+        }
+        body.dark-mode .timeline-item:nth-child(1) .timeline-content {
+            background-color: #777;
+        }
+        .timeline-item:nth-child(2) .timeline-content {
+            background-color: #98fb98;
+        }
+        body.dark-mode .timeline-item:nth-child(2) .timeline-content {
+            background-color: #888;
+        }
+        .timeline-item:nth-child(3) .timeline-content {
+            background-color: #ffb6c1;
+        }
+        body.dark-mode .timeline-item:nth-child(3) .timeline-content {
+            background-color: #999;
+        }
+        .timeline-content h3 {
+            margin: 0 0 10px 0;
+            font-size: clamp(16px, 2vw, 18px);
+        }
+        .timeline-content p {
+            margin: 0;
+            font-size: clamp(14px, 1.7vw, 16px);
+        }
+
+        /* Modal pop-up styling */
+        .content-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-content {
+            padding: 20px 30px;
+            border-radius: 6px;
+            max-width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            color: #000;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        .modal-content.event-content-modal {
+            background: linear-gradient(to bottom, #d8bfd8, #f0e6fa);
+        }
+        body.dark-mode .modal-content.event-content-modal {
+            background: linear-gradient(to bottom, #666, #999);
+            color: #ddd;
+        }
+        
+        /* Contrasting background for timeline modals with 90% alpha */
+        .modal-content.timeline-content-modal.nth-child-1 {
+            background: linear-gradient(to bottom, rgba(135, 206, 235, 0.9), rgba(176, 224, 230, 0.9));
+        }
+        body.dark-mode .modal-content.timeline-content-modal.nth-child-1 {
+            background: linear-gradient(to bottom, rgba(119, 119, 119, 0.9), rgba(153, 153, 153, 0.9));
+            color: #ddd;
+        }
+        .modal-content.timeline-content-modal.nth-child-2 {
+            background: linear-gradient(to bottom, rgba(144, 238, 144, 0.9), rgba(173, 255, 47, 0.9));
+        }
+        body.dark-mode .modal-content.timeline-content-modal.nth-child-2 {
+            background: linear-gradient(to bottom, rgba(102, 102, 102, 0.9), rgba(136, 136, 136, 0.9));
+            color: #ddd;
+        }
+        .modal-content.timeline-content-modal.nth-child-3 {
+            background: linear-gradient(to bottom, rgba(255, 153, 153, 0.9), rgba(255, 182, 193, 0.9));
+        }
+        body.dark-mode .modal-content.timeline-content-modal.nth-child-3 {
+            background: linear-gradient(to bottom, rgba(85, 85, 85, 0.9), rgba(119, 119, 119, 0.9));
+            color: #ddd;
+        }
+        
+        /* Modal content text styling (scaled up by 1.5) */
+        .modal-content h3 {
+            margin: 0 0 10px 0;
+            font-size: clamp(31.5px, 5.625vw, 36px);
+        }
+        .modal-content p, .modal-content ul {
+            margin: 0;
+            font-size: clamp(31.5px, 3.825vw, 36px);
+        }
+        .modal-content ul {
+            list-style-type: disc;
+            padding-left: 30px;
+            text-align: left;
+        }
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #fff;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .modal-close:hover {
+            color: #bbb;
+        }
+
+        /* Footer styling */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: rgba(255, 20, 147, 0.95);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            box-sizing: border-box;
+            color: #fff;
+            height: 30px;
+            font-size: 12px;
+            transition: transform 0.5s ease, opacity 0.5s ease, height 0.3s ease;
+            transform: translateY(100%);
+            opacity: 0;
+            z-index: 1000;
+        }
+        .footer.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .footer.stretched {
+            height: 45px;
+        }
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+        .footer-content .left {
+            text-align: left;
+        }
+        .footer-content .center {
+            text-align: center;
+            flex-grow: 1;
+        }
+        .footer-content .right {
+            text-align: right;
+        }
+        
+        /* Desktop-specific timeline styles (min-width: 769px) */
+        @media (min-width: 769px) {
+            .timeline-track {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: flex-start;
+                padding-top: 40px; /* Space for the timeline line and markers */
+            }
+            .timeline-line {
+                width: 100%;
+                height: 6px;
+                top: 0;
+                left: 0;
+                transform: none;
+            }
+            .timeline-item {
+                flex: 1;
+                padding: 0 15px;
+                text-align: center;
+            }
+            .timeline-marker {
+                left: 50%;
+                top: -24px;
+                transform: translateX(-50%);
+            }
+            .timeline-content {
+                margin-top: 0;
+            }
+        }
+
+        /* Mobile-specific timeline styles (max-width: 768px) */
+        @media (max-width: 768px), (orientation: portrait) {
+            .header { height: 225px; }
+            .header.scrolled { height: 48px; flex-direction: column; justify-content: center; align-items: center; gap: 2px;}
+            .header.initial img#nepal-flag { top: 23px; width: 25px; height: 25px; }
+            .header.initial img#aps-logo { top: 45px; width: 25px; height: 25px; }
+            .header.scrolled img#nepal-flag { top: 7px; left: 15px; width: 20px; height: 20px; }
+            .header.scrolled img#aps-logo { top: 7px; left: calc(100% - 45px); width: 20px; height: 20px; }
+            .header h1 { font-size: 20px; top: 105px; }
+            .header.scrolled h1 { font-size: 16px; top: auto; position: static; }
+            #scroll-btn { padding: 8px 16px; font-size: 14px; top: 173px; }
+            .mode-toggle { top: 150px; }
+            .header.scrolled .mode-toggle { top: auto; left: auto; transform: scale(0.4); position: static; }
+            .content { margin: 730px auto 20px; }
+            .content.scrolled { margin: 220px auto 20px; }
+            .footer { height: 45px; padding: 15px 20px; flex-direction: row; }
+            .footer.stretched { height: 60px; }
+            
+            /* Vertical timeline on mobile */
+            .timeline {
+                max-width: 100%;
+            }
+            .timeline-track {
+                flex-direction: column;
+                align-items: flex-start;
+                position: relative;
+                padding-left: 40px;
+                padding-top: 0; /* Reset padding for mobile */
+            }
+            .timeline-line {
+                width: 6px;
+                height: 100%;
+                top: 0;
+                left: 15px;
+                transform: none;
+            }
+            .timeline-item {
+                flex: 0 0 auto;
+                width: 100%;
+                padding: 10px 0;
+                text-align: left;
+                position: relative;
+            }
+            .timeline-marker {
+                left: -25px;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+            .timeline-content {
+                margin-top: 0;
+            }
+            
+            /* Modal text is also responsive (scaled) */
+            .modal-content h3 { font-size: clamp(27px, 4.5vw, 30px); }
+            .modal-content p, .modal-content ul { font-size: clamp(27px, 3.3vw, 30px); }
+            .modal-content ul { padding-left: 25px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header initial">
+        <img id="nepal-flag" src="https://placehold.co/50x50/ff0000/ffffff?text=NP" onerror="this.onerror=null; this.src='https://placehold.co/50x50/ff0000/ffffff?text=NP';" alt="Nepal Flag">
+        <a href="https://asiapacific.edu.np">
+            <img id="aps-logo" src="https://placehold.co/50x50/0000ff/ffffff?text=APS" onerror="this.onerror=null; this.src='https://placehold.co/50x50/0000ff/ffffff?text=APS';" alt="APS Logo">
+        </a>
+        <h1 id="header-title" class="text-center">Asia Pacific School Model United Nations 2025</h1>
+        <div class="mode-toggle">
+            <span class="icon">☀️</span>
+            <input type="checkbox" id="mode-toggle-switch" />
+            <label for="mode-toggle-switch"></label>
+            <span class="icon">🌙</span>
+        </div>
+        <button id="scroll-btn">
+            <span class="arrow">▼</span>
+            <span class="text">Scroll</span>
+        </button>
+    </div>
+
+    <div class="content">
+        <!-- Section 1: Concept and Importance -->
+        <div class="section-frame">
+            <h2>The Concept and Importance of Model United Nations</h2>
+            <div class="event-article">
+                <div class="event-content">
+                    <div class="sub-section">
+                        <h3>Concept of MUN</h3>
+                        <ul>
+                            <li>Model United Nations (MUN) is an educational simulation where students act as delegates from different countries.</li>
+                            <li>Participants debate and resolve real-world issues, mirroring the United Nations.</li>
+                            <li>Originated from early 20th-century simulations of the League of Nations, evolving into MUN after the UN's formation in 1945.</li>
+                        </ul>
+                    </div>
+                    <div class="sub-section">
+                        <h3>Educational Benefits</h3>
+                        <ul>
+                            <li>Enhances critical thinking, public speaking, and leadership skills.</li>
+                            <li>Teaches diplomacy, international relations, and global citizenship.</li>
+                            <li>Helps students understand global challenges like climate change and peacebuilding.</li>
+                        </ul>
+                    </div>
+                    <div class="sub-section">
+                        <h3>Global Impact</h3>
+                        <ul>
+                            <li>Builds confidence and fosters teamwork among participants.</li>
+                            <li>Promotes cultural awareness through diverse interactions.</li>
+                            <li>Prepares students for future careers in international affairs.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Interactive Timeline -->
+        <div class="section-frame">
+            <h2>Timeline of Model United Nations</h2>
+            <div class="timeline">
+                <div class="timeline-line"></div>
+                <div class="timeline-track">
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <h3>Worldwide History</h3>
+                            <p>MUN's roots trace to 1921 at Oxford as Model League of Nations. The first official MUN was at Swarthmore College in 1947. Harvard MUN started in 1951, and WorldMUN in 1991 accelerated global spread. UN co-sponsored its first MUN in 2000.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <h3>MUN in Nepal</h3>
+                            <p>MUN in Nepal began with Budhanilkantha School pioneering it. Events like AVM MUN 2024 and Chitwan MUN have grown popular. Organizations like UN Youth Nepal support MUNs, fostering youth diplomacy since the UN's presence in Nepal from 1951.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <h3>MUN at Asia Pacific School</h3>
+                            <p>(Placeholder for APS details - to be added later)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for displaying content in a pop-up -->
+    <div id="content-modal" class="content-modal">
+        <span class="modal-close">&times;</span>
+        <div class="modal-content">
+            <h3 id="modal-title"></h3>
+            <div id="modal-text"></div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-content">
+            <span class="left">© Asia Pacific School</span>
+            <span class="center">Event date: 2-3 August</span>
+            <span class="right" id="current-time"></span>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const header = document.querySelector('.header');
+            const content = document.querySelector('.content');
+            const footer = document.querySelector('.footer');
+            const scrollBtn = document.getElementById('scroll-btn');
+            const modeToggleSwitch = document.getElementById('mode-toggle-switch');
+            const currentTimeElement = document.getElementById('current-time');
+            const eventContent = document.querySelector('.event-content');
+            const timelineContents = document.querySelectorAll('.timeline-content');
+            const contentModal = document.getElementById('content-modal');
+            const modalContent = document.querySelector('.modal-content');
+            const modalTitle = document.getElementById('modal-title');
+            const modalText = document.getElementById('modal-text');
+            const modalClose = document.querySelector('.modal-close');
+            const timeline = document.querySelector('.timeline');
+            const timelineTrack = document.querySelector('.timeline-track');
+
+            let scrollTimeout;
+
+            // Function to update the current time in the footer
+            function updateCurrentTime() {
+                const now = new Date();
+                const options = {
+                    weekday: 'short',
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true,
+                    timeZone: 'Asia/Kathmandu'
+                };
+                const timeString = now.toLocaleString('en-US', options)
+                    .replace(',', '')
+                    .replace(/(\d{2}) (\w{3}) (\d{4}) (\d{2}:\d{2}) (\w{2})/, '$1 $2 $3, $4 $5 +0545');
+                currentTimeElement.textContent = timeString;
+            }
+            updateCurrentTime();
+            setInterval(updateCurrentTime, 1000);
+
+            // Check for dark mode preference in local storage
+            const currentMode = localStorage.getItem('theme');
+            if (currentMode === 'dark') {
+                document.body.classList.add('dark-mode');
+                modeToggleSwitch.checked = true;
+            }
+
+            // Event listener for the dark mode toggle switch
+            modeToggleSwitch.addEventListener('change', () => {
+                if (modeToggleSwitch.checked) {
+                    document.body.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.body.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+            });
+
+            // Update header text based on screen size
+            function updateHeaderText() {
+                const headerTitle = document.getElementById('header-title');
+                if (window.innerWidth <= 768) {
+                    headerTitle.textContent = 'APS MUN 2.0';
+                } else {
+                    headerTitle.textContent = 'Asia Pacific School Model United Nations 2025';
+                }
+            }
+            updateHeaderText();
+            window.addEventListener('resize', updateHeaderText);
+
+            // Handle header and footer visibility on scroll
+            window.addEventListener('scroll', () => {
+                const scrollPosition = window.scrollY;
+                if (scrollPosition > 100) {
+                    header.classList.add('scrolled');
+                    content.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                    content.classList.remove('scrolled');
+                }
+                const windowHeight = window.innerHeight;
+                const documentHeight = document.documentElement.scrollHeight;
+                const atBottom = scrollPosition + windowHeight >= documentHeight - 10;
+                if (atBottom) {
+                    footer.classList.add('visible');
+                    footer.classList.add('stretched');
+                } else {
+                    footer.classList.remove('visible');
+                }
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => {
+                    footer.classList.remove('stretched');
+                }, 500);
+            });
+
+            // Scroll button functionality
+            if (scrollBtn) {
+                scrollBtn.addEventListener('click', () => {
+                    const conceptSection = document.querySelector('.section-frame:nth-child(1)');
+                    const offset = conceptSection.getBoundingClientRect().top + window.scrollY;
+                    window.scrollTo({
+                        top: offset - 50,
+                        behavior: 'smooth'
+                    });
+                });
+            }
+
+            // Modal functionality for the main article
+            eventContent.addEventListener('click', () => {
+                modalTitle.textContent = '';
+                modalText.innerHTML = eventContent.innerHTML;
+                modalContent.className = 'modal-content event-content-modal';
+                contentModal.style.display = 'flex';
+            });
+
+            // Modal functionality for each timeline card
+            timelineContents.forEach((content, index) => {
+                content.addEventListener('click', () => {
+                    const title = content.querySelector('h3').textContent;
+                    const text = content.querySelector('p').innerHTML;
+                    modalTitle.textContent = title;
+                    modalText.innerHTML = text;
+                    modalContent.className = `modal-content timeline-content-modal nth-child-${index + 1}`;
+                    contentModal.style.display = 'flex';
+                });
+            });
+
+            // Close modal with the 'X' button
+            modalClose.addEventListener('click', () => {
+                contentModal.style.display = 'none';
+            });
+
+            // Close modal by clicking outside of it
+            window.addEventListener('click', (event) => {
+                if (event.target === contentModal) {
+                    contentModal.style.display = 'none';
+                }
+            });
+
+            // Close modal with the Escape key
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && contentModal.style.display === 'flex') {
+                    contentModal.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

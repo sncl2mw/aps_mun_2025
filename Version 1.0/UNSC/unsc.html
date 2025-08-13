@@ -1,0 +1,993 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNSC - Asia Pacific School Model United Nations 2025</title>
+    <script src="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(to bottom, #800080, #ff69b4);
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(to bottom, hsl(0, 0%, 50%), hsl(0, 50%, 70%));
+            color: #ddd;
+        }
+
+        .header {
+            position: fixed;
+            top: 30px;
+            width: 100%;
+            height: 375px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            box-sizing: border-box;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            background: linear-gradient(to bottom, rgba(139, 69, 19, 1), rgba(255, 182, 193, 0.001));
+        }
+
+        body.dark-mode .header {
+            background: linear-gradient(to bottom, rgba(128, 128, 128, 0.95), rgba(192, 192, 192, 0.0095));
+        }
+
+        .header.scrolled {
+            top: 0;
+            height: 80px;
+            background: rgba(147, 112, 219, 0.95);
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+
+        body.dark-mode .header.scrolled {
+            background: rgba(128, 128, 128, 1);
+        }
+
+        .header h1 {
+            font-size: 4vw;
+            margin: 0;
+            transition: font-size 0.3s ease, top 0.3s ease;
+            position: absolute;
+            top: 135px;
+            text-align: center;
+        }
+
+        .header.scrolled h1 {
+            font-size: 2vw;
+            top: auto;
+            position: static;
+        }
+
+        .header img {
+            position: absolute;
+            transition: all 0.3s ease;
+            filter: drop-shadow(2px 4px 6px black);
+        }
+
+        .header.initial img#nepal-flag {
+            top: 38px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 50px;
+        }
+
+        .header.initial img#aps-logo {
+            top: 83px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 50px;
+        }
+
+        .header.scrolled img#nepal-flag {
+            top: 15px;
+            left: 30px;
+            width: 30px;
+            height: 30px;
+            transform: none;
+        }
+
+        .header.scrolled img#aps-logo {
+            top: 15px;
+            left: calc(100% - 60px);
+            width: 30px;
+            height: 30px;
+            transform: none;
+        }
+
+        #scroll-btn {
+            position: absolute;
+            top: 225px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(144, 238, 144, 0.7);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            color: #333;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 1001;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+            animation: flashScrollBtn 1.5s infinite;
+        }
+
+        @keyframes flashScrollBtn {
+            0%, 100% { background: rgba(144, 238, 144, 0.7); }
+            50% { background: rgba(50, 205, 50, 0.7); }
+        }
+
+        .header.scrolled #scroll-btn {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .mode-toggle {
+            position: absolute;
+            top: 195px;
+            left: 50%;
+            transform: translateX(-50%) scale(0.5);
+            z-index: 1002;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: top 0.3s ease, position 0.3s ease, transform 0.3s ease;
+        }
+
+        .header.scrolled .mode-toggle {
+            top: auto;
+            left: auto;
+            transform: scale(0.5);
+            position: static;
+        }
+
+        .mode-toggle input[type="checkbox"] {
+            height: 0;
+            width: 0;
+            visibility: hidden;
+        }
+
+        .mode-toggle label {
+            cursor: pointer;
+            text-indent: -9999px;
+            width: 50px;
+            height: 25px;
+            background: grey;
+            display: block;
+            border-radius: 100px;
+            position: relative;
+        }
+
+        .mode-toggle label:after {
+            content: '';
+            position: absolute;
+            top: 2.5px;
+            left: 2.5px;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 90px;
+            transition: 0.3s;
+        }
+
+        .mode-toggle input:checked + label {
+            background: #ff69b4;
+        }
+
+        .mode-toggle input:checked + label:after {
+            left: calc(100% - 2.5px);
+            transform: translateX(-100%);
+        }
+
+        .mode-toggle .icon {
+            font-size: 24px;
+            color: #fff;
+        }
+
+        .content {
+            max-width: 1200px;
+            margin: 930px auto 20px;
+            padding: 20px;
+            flex: 1;
+            transition: margin-top 0.3s ease;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .content.scrolled {
+            margin: 260px auto 20px;
+        }
+
+        .section-frame {
+            background: rgba(255, 215, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 1200px;
+            box-sizing: border-box;
+        }
+
+        body.dark-mode .section-frame {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .section-frame h2 {
+            margin: 0 0 20px 0;
+            font-size: clamp(20px, 2.5vw, 24px);
+            color: #fff;
+            text-align: center;
+        }
+
+        #newsletter-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: background-color 0.3s ease;
+            animation: color-flash 2s infinite alternate;
+        }
+
+        @keyframes color-flash {
+            0% { background-color: #006400; }
+            50% { background-color: #00008B; }
+            100% { background-color: #8B0000; }
+        }
+
+        .coat-of-arms-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            align-items: center;
+            justify-items: center;
+            gap: 10px;
+            padding: 10px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .coat-of-arms {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .committee-name {
+            text-align: center;
+        }
+
+        .chair-vice-chair {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .chair-vice-chair img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .delegate-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .delegate-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+
+        .delegate-item img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+        }
+
+        .event-images {
+            position: relative;
+            width: 600px;
+            height: 400px;
+            margin: 20px auto;
+        }
+
+        .event-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            transition: opacity 1.5s ease;
+            cursor: pointer;
+            display: none;
+            opacity: 0;
+            z-index: 1;
+        }
+
+        .event-image.active {
+            display: block;
+            opacity: 1;
+            z-index: 10;
+        }
+
+        .event-images-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            color: #fff;
+            cursor: pointer;
+            user-select: none;
+            transition: color 0.3s ease, opacity 0.3s ease;
+        }
+
+        .event-images-nav.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .event-images-nav:hover {
+            color: #ff69b4;
+        }
+
+        body.dark-mode .event-images-nav:hover {
+            color: #a9a9a9;
+        }
+
+        .event-images-nav.left {
+            left: -40px;
+        }
+
+        .event-images-nav.right {
+            right: -40px;
+        }
+
+        .event-article {
+            max-width: 600px;
+            margin: 0 auto;
+            font-size: clamp(14px, 1.7vw, 16px);
+        }
+
+        .zoomed-image-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .zoomed-image {
+            max-width: 90%;
+            max-height: 80vh;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        body.dark-mode .zoomed-image {
+            filter: grayscale(100%);
+        }
+
+        .zoomed-image-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #fff;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .zoomed-image-close:hover {
+            color: #bbb;
+        }
+
+        .zoomed-image-nav {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 32px;
+            color: #fff;
+            cursor: pointer;
+            user-select: none;
+            transition: color 0.3s ease, opacity 0.3s ease;
+        }
+
+        .zoomed-image-nav.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .zoomed-image-nav:hover {
+            color: #ff69b4;
+        }
+
+        body.dark-mode .zoomed-image-nav:hover {
+            color: #a9a9a9;
+        }
+
+        .zoomed-image-nav.top {
+            top: auto;
+        }
+
+        .zoomed-image-nav.bottom {
+            bottom: auto;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: rgba(255, 20, 147, 0.95);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            box-sizing: border-box;
+            color: #fff;
+            height: 30px;
+            font-size: 12px;
+            transition: transform 0.5s ease, opacity 0.5s ease, height 0.3s ease;
+            transform: translateY(100%);
+            opacity: 0;
+            z-index: 1000;
+        }
+
+        .footer.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .footer.stretched {
+            height: 45px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .footer-content .left {
+            text-align: left;
+        }
+
+        .footer-content .center {
+            text-align: center;
+            flex-grow: 1;
+        }
+
+        .footer-content .right {
+            text-align: right;
+        }
+
+        @media (max-width: 768px), (orientation: portrait) {
+            .header { 
+                height: 225px; 
+            }
+            .header.scrolled { 
+                height: 48px; 
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: 2px;
+            }
+            .header.initial img#nepal-flag { 
+                top: 23px; 
+                width: 25px; 
+                height: 25px; 
+            }
+            .header.initial img#aps-logo { 
+                top: 45px; 
+                width: 25px; 
+                height: 25px; 
+            }
+            .header.scrolled img#nepal-flag { 
+                top: 7px; 
+                left: 15px; 
+                width: 20px; 
+                height: 20px; 
+            }
+            .header.scrolled img#aps-logo { 
+                top: 7px; 
+                left: calc(100% - 45px); 
+                width: 20px; 
+                height: 20px; 
+            }
+            .header h1 { 
+                font-size: 20px; 
+                top: 105px; 
+            }
+            .header.scrolled h1 { 
+                font-size: 16px; 
+                top: auto; 
+                position: static; 
+            }
+            #scroll-btn { 
+                padding: 8px 16px; 
+                font-size: 14px; 
+                top: 173px; 
+            }
+            .mode-toggle { 
+                top: 150px; 
+            }
+            .header.scrolled .mode-toggle { 
+                top: auto; 
+                left: auto; 
+                transform: scale(0.4); 
+                position: static; 
+            }
+            .content { 
+                margin: 730px auto 20px; 
+            }
+            .content.scrolled { 
+                margin: 220px auto 20px; 
+            }
+            .footer { 
+                height: 45px; 
+                padding: 15px 20px; 
+                flex-direction: row; 
+            }
+            .footer.stretched {
+                height: 60px;
+            }
+            .coat-of-arms-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+                padding: 10px;
+            }
+            .coat-of-arms {
+                width: 60px;
+                height: 60px;
+            }
+            .chair-vice-chair img {
+                width: 60px;
+                height: 60px;
+            }
+            .delegate-item img {
+                width: 30px;
+                height: 30px;
+            }
+            .event-images {
+                width: 300px;
+                height: 200px;
+            }
+            .event-images-nav {
+                font-size: 20px;
+            }
+            .event-images-nav.left {
+                left: -30px;
+            }
+            .event-images-nav.right {
+                right: -30px;
+            }
+            .zoomed-image {
+                max-width: 95%;
+                max-height: 75vh;
+            }
+            .zoomed-image-nav {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header initial">
+        <img id="nepal-flag" src="https://placehold.co/50x50/ff0000/ffffff?text=NP" onerror="this.onerror=null; this.src='https://placehold.co/50x50/ff0000/ffffff?text=NP';" alt="Nepal Flag">
+        <a href="https://asiapacific.edu.np">
+            <img id="aps-logo" src="https://placehold.co/50x50/0000ff/ffffff?text=APS" onerror="this.onerror=null; this.src='https://placehold.co/50x50/0000ff/ffffff?text=APS';" alt="APS Logo">
+        </a>
+        <h1 id="header-title" class="text-center">Asia Pacific School Model United Nations 2025</h1>
+        <div class="mode-toggle">
+            <span class="icon">☀️</span>
+            <input type="checkbox" id="mode-toggle-switch" />
+            <label for="mode-toggle-switch"></label>
+            <span class="icon">🌙</span>
+        </div>
+        <button id="scroll-btn">
+            <span class="arrow">▼</span>
+            <span class="text">Scroll</span>
+        </button>
+    </div>
+
+    <div class="content">
+        <!-- Section 1: Coat of Arms, Committee Name, Chair/Vice-Chair -->
+        <div class="section-frame">
+            <h2>UNSC Leadership</h2>
+            <div class="coat-of-arms-container">
+                <img class="coat-of-arms" src="https://placehold.co/100x100/ffd700/ffffff?text=UNSC+Coat" alt="UNSC Coat of Arms">
+                <div class="committee-name">
+                    <h3>United Nations Security Council</h3>
+                </div>
+                <div class="chair-vice-chair">
+                    <img src="https://placehold.co/100x100/cccccc/ffffff?text=Chair" alt="UNSC Chair">
+                    <img src="https://placehold.co/100x100/cccccc/ffffff?text=Vice-Chair" alt="UNSC Vice-Chair">
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Delegate List -->
+        <div class="section-frame">
+            <h2>Delegates</h2>
+            <div class="delegate-list">
+                <div class="delegate-item">
+                    <img src="https://placehold.co/50x50/cccccc/ffffff?text=US" alt="United States Flag">
+                    <span>United States</span>
+                </div>
+                <div class="delegate-item">
+                    <img src="https://placehold.co/50x50/cccccc/ffffff?text=RU" alt="Russia Flag">
+                    <span>Russia</span>
+                </div>
+                <div class="delegate-item">
+                    <img src="https://placehold.co/50x50/cccccc/ffffff?text=CN" alt="China Flag">
+                    <span>China</span>
+                </div>
+                <div class="delegate-item">
+                    <img src="https://placehold.co/50x50/cccccc/ffffff?text=UK" alt="United Kingdom Flag">
+                    <span>United Kingdom</span>
+                </div>
+                <div class="delegate-item">
+                    <img src="https://placehold.co/50x50/cccccc/ffffff?text=FR" alt="France Flag">
+                    <span>France</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Event Images and Article -->
+        <div class="section-frame">
+            <h2>UNSC Event Highlights</h2>
+            <div class="event-images">
+                <span class="event-images-nav left" onclick="changeSlide(-1)">◄</span>
+                <img class="event-image active" style="--index: 0" src="https://placehold.co/600x400/ffd700/fff?text=UNSC+Image+1" alt="UNSC Event Image 1">
+                <img class="event-image" style="--index: 1" src="https://placehold.co/600x400/ffd700/fff?text=UNSC+Image+2" alt="UNSC Event Image 2">
+                <img class="event-image" style="--index: 2" src="https://placehold.co/600x400/ffd700/fff?text=UNSC+Image+3" alt="UNSC Event Image 3">
+                <img class="event-image" style="--index: 3" src="https://placehold.co/600x400/ffd700/fff?text=UNSC+Image+4" alt="UNSC Event Image 4">
+                <img class="event-image" style="--index: 4" src="https://placehold.co/600x400/ffd700/fff?text=UNSC+Image+5" alt="UNSC Event Image 5">
+                <span class="event-images-nav right" onclick="changeSlide(1)">►</span>
+            </div>
+            <div class="event-article">
+                <p>The United Nations Security Council (UNSC) session at APS MUN 2025 was a cornerstone of diplomatic engagement, held on August 2–3, 2025. Delegates tackled pressing global issues, including conflict resolution, peacekeeping missions, and sanctions enforcement, under the theme "Safeguarding Global Stability." With intense debates and strategic negotiations, participants crafted resolutions to address emerging threats and promote international cooperation. The UNSC’s focus on urgent crises showcased the delegates’ diplomatic acumen, reinforcing its critical role in maintaining global peace and security. The session’s impactful outcomes were a highlight of the conference. (120 words)</p>
+            </div>
+        </div>
+
+        <a href="ipc_newsletter.html" id="newsletter-btn">View newsletter of APS MUN 2025</a>
+    </div>
+
+    <div id="zoomed-image-overlay" class="zoomed-image-overlay">
+        <span class="zoomed-image-close">&times;</span>
+        <span class="zoomed-image-nav top" onclick="changeZoomedImage(-1)">&#9650;</span>
+        <span class="zoomed-image-nav bottom" onclick="changeZoomedImage(1)">&#9660;</span>
+        <img id="zoomed-image" class="zoomed-image" src="" alt="Zoomed Image">
+    </div>
+
+    <div class="footer">
+        <div class="footer-content">
+            <span class="left">© Asia Pacific School</span>
+            <span class="center">Event date: 2-3 August</span>
+            <span class="right" id="current-time"></span>
+        </div>
+    </div>
+
+    <script>
+        window.changeSlide = function(direction) {
+            const eventImages = document.querySelectorAll('.event-image');
+            const eventImagesNavLeft = document.querySelector('.event-images-nav.left');
+            const eventImagesNavRight = document.querySelector('.event-images-nav.right');
+            let currentSlideIndex = parseInt(localStorage.getItem('currentSlideIndex') || '0');
+
+            clearInterval(window.slideshowInterval);
+            eventImages.forEach(img => {
+                img.classList.remove('active');
+                img.style.display = 'none';
+            });
+            currentSlideIndex = (currentSlideIndex + direction + eventImages.length) % eventImages.length;
+            eventImages[currentSlideIndex].classList.add('active');
+            eventImages[currentSlideIndex].style.display = 'block';
+            localStorage.setItem('currentSlideIndex', currentSlideIndex);
+            eventImagesNavLeft.classList.toggle('hidden', currentSlideIndex === 0);
+            eventImagesNavRight.classList.toggle('hidden', currentSlideIndex === eventImages.length - 1);
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const header = document.querySelector('.header');
+            const content = document.querySelector('.content');
+            const footer = document.querySelector('.footer');
+            const scrollBtn = document.getElementById('scroll-btn');
+            const newsletterBtn = document.getElementById('newsletter-btn');
+            const modeToggleSwitch = document.getElementById('mode-toggle-switch');
+            const zoomedImageOverlay = document.getElementById('zoomed-image-overlay');
+            const zoomedImage = document.getElementById('zoomed-image');
+            const zoomedImageClose = document.querySelector('.zoomed-image-close');
+            const zoomedImageNavTop = document.querySelector('.zoomed-image-nav.top');
+            const zoomedImageNavBottom = document.querySelector('.zoomed-image-nav.bottom');
+            const currentTimeElement = document.getElementById('current-time');
+            const eventImages = document.querySelectorAll('.event-image');
+            const eventImagesContainer = document.querySelector('.event-images');
+            const eventImagesNavLeft = document.querySelector('.event-images-nav.left');
+            const eventImagesNavRight = document.querySelector('.event-images-nav.right');
+
+            let currentZoomedImageIndex = 0;
+            let currentImages = [];
+            let currentSlideIndex = parseInt(localStorage.getItem('currentSlideIndex') || '0');
+            let scrollTimeout;
+
+            // Initialize carousel
+            eventImages.forEach((img, index) => {
+                img.style.display = index === currentSlideIndex ? 'block' : 'none';
+                if (index === currentSlideIndex) img.classList.add('active');
+            });
+
+            function updateCurrentTime() {
+                const now = new Date();
+                const options = {
+                    weekday: 'short',
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                };
+                const timeString = now.toLocaleString('en-US', options)
+                    .replace(',', '')
+                    .replace(/(\d{2}) (\w{3}) (\d{4}) (\d{2}:\d{2}) (\w{2})/, '$1 $2 $3, $4 $5');
+                currentTimeElement.textContent = timeString;
+            }
+            updateCurrentTime();
+            setInterval(updateCurrentTime, 1000);
+
+            const currentMode = localStorage.getItem('theme');
+            if (currentMode === 'dark') {
+                document.body.classList.add('dark-mode');
+                modeToggleSwitch.checked = true;
+            }
+
+            modeToggleSwitch.addEventListener('change', () => {
+                if (modeToggleSwitch.checked) {
+                    document.body.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.body.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+                if (zoomedImageOverlay.style.display === 'flex') {
+                    updateZoomedImage();
+                }
+            });
+
+            function updateNavVisibility() {
+                eventImagesNavLeft.classList.toggle('hidden', currentSlideIndex === 0);
+                eventImagesNavRight.classList.toggle('hidden', currentSlideIndex === eventImages.length - 1);
+            }
+
+            function startSlideshow() {
+                window.slideshowInterval = setInterval(() => {
+                    eventImages.forEach(img => {
+                        img.classList.remove('active');
+                        img.style.display = 'none';
+                    });
+                    currentSlideIndex = (currentSlideIndex + 1) % eventImages.length;
+                    eventImages[currentSlideIndex].classList.add('active');
+                    eventImages[currentSlideIndex].style.display = 'block';
+                    localStorage.setItem('currentSlideIndex', currentSlideIndex);
+                    updateNavVisibility();
+                }, 5000);
+            }
+
+            function stopSlideshow() {
+                clearInterval(window.slideshowInterval);
+            }
+
+            eventImagesContainer.addEventListener('mouseover', stopSlideshow);
+            eventImagesContainer.addEventListener('mouseout', startSlideshow);
+            eventImagesNavLeft.addEventListener('click', () => changeSlide(-1));
+            eventImagesNavRight.addEventListener('click', () => changeSlide(1));
+
+            updateNavVisibility();
+            startSlideshow();
+
+            function updateHeaderText() {
+                const headerTitle = document.getElementById('header-title');
+                if (window.innerWidth <= 768) {
+                    headerTitle.textContent = 'APS MUN 2.0';
+                } else {
+                    headerTitle.textContent = 'Asia Pacific School Model United Nations 2025';
+                }
+            }
+
+            updateHeaderText();
+            window.addEventListener('resize', updateHeaderText);
+
+            window.addEventListener('scroll', () => {
+                const scrollPosition = window.scrollY;
+                if (scrollPosition > 100) {
+                    header.classList.add('scrolled');
+                    content.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                    content.classList.remove('scrolled');
+                }
+
+                const windowHeight = window.innerHeight;
+                const documentHeight = document.documentElement.scrollHeight;
+                const atBottom = scrollPosition + windowHeight >= documentHeight - 10;
+
+                if (atBottom) {
+                    footer.classList.add('visible');
+                    footer.classList.add('stretched');
+                } else {
+                    footer.classList.remove('visible');
+                }
+
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => {
+                    footer.classList.remove('stretched');
+                }, 500);
+            });
+
+            if (scrollBtn) {
+                scrollBtn.addEventListener('click', () => {
+                    const newsletterBtnRect = newsletterBtn.getBoundingClientRect();
+                    const offset = newsletterBtnRect.top + window.scrollY;
+                    window.scrollTo({
+                        top: offset - 300,
+                        behavior: 'smooth'
+                    });
+                });
+            }
+
+            const imageData = [
+                'https://placehold.co/600x400/ffd700/fff?text=UNSC+Image+1',
+                'https://placehold.co/600x400/ffd700/fff?text=UNSC+Image+2',
+                'https://placehold.co/600x400/ffd700/fff?text=UNSC+Image+3',
+                'https://placehold.co/600x400/ffd700/fff?text=UNSC+Image+4',
+                'https://placehold.co/600x400/ffd700/fff?text=UNSC+Image+5'
+            ];
+
+            function updateZoomedImage() {
+                zoomedImage.src = currentImages[currentZoomedImageIndex];
+                zoomedImage.alt = `UNSC Event Image ${currentZoomedImageIndex + 1}`;
+                zoomedImageNavTop.classList.toggle('hidden', currentZoomedImageIndex === 0);
+                zoomedImageNavBottom.classList.toggle('hidden', currentZoomedImageIndex === currentImages.length - 1);
+
+                zoomedImage.onload = () => {
+                    const imageHeight = zoomedImage.offsetHeight;
+                    const offset = window.innerWidth <= 768 ? 10 : 15;
+                    zoomedImageNavTop.style.top = `${zoomedImage.offsetTop - offset}px`;
+                    zoomedImageNavBottom.style.top = `${zoomedImage.offsetTop + imageHeight + offset - 25}px`;
+                };
+                if (zoomedImage.complete) {
+                    zoomedImage.onload();
+                }
+            }
+
+            window.changeZoomedImage = function(direction) {
+                currentZoomedImageIndex = (currentZoomedImageIndex + direction + currentImages.length) % currentImages.length;
+                updateZoomedImage();
+            };
+
+            eventImages.forEach((img, index) => {
+                img.addEventListener('click', () => {
+                    currentImages = imageData.map(url => 
+                        document.body.classList.contains('dark-mode') 
+                            ? url.replace(/text=.*$/, 'text=UNSC_Image')
+                            : url
+                    );
+                    currentZoomedImageIndex = index;
+                    updateZoomedImage();
+                    zoomedImageOverlay.style.display = 'flex';
+                });
+            });
+
+            zoomedImageClose.addEventListener('click', () => {
+                zoomedImageOverlay.style.display = 'none';
+            });
+
+            window.addEventListener('click', (event) => {
+                if (event.target === zoomedImageOverlay) {
+                    zoomedImageOverlay.style.display = 'none';
+                }
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (zoomedImageOverlay.style.display === 'flex') {
+                    if (event.key === 'ArrowUp') {
+                        changeZoomedImage(-1);
+                    } else if (event.key === 'ArrowDown') {
+                        changeZoomedImage(1);
+                    }
+                }
+            });
+
+            window.addEventListener('resize', () => {
+                if (zoomedImageOverlay.style.display === 'flex') {
+                    updateZoomedImage();
+                }
+                updateNavVisibility();
+            });
+        });
+    </script>
+</body>
+</html>
